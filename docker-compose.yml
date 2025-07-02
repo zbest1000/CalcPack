@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  paddleocr-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - PADDLE_OCR_LOG_LEVEL=INFO
+    volumes:
+      - ./output:/app/output
+      - ./models:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - paddleocr-network
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    depends_on:
+      - paddleocr-service
+    environment:
+      - PADDLEOCR_SERVICE_URL=http://paddleocr-service:8000
+    stdin_open: true
+    tty: true
+    networks:
+      - paddleocr-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - paddleocr-service
+    restart: unless-stopped
+    networks:
+      - paddleocr-network
+
+networks:
+  paddleocr-network:
+    driver: bridge
+
+volumes:
+  paddleocr-models:
+    driver: local
+  paddleocr-output:
+    driver: local

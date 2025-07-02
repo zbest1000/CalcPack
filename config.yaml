@@ -1,0 +1,106 @@
+# PaddleOCR Service Configuration
+
+# Service settings
+service:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  log_level: "INFO"
+  max_request_size: 10485760  # 10MB
+  timeout: 120
+
+# OCR settings
+ocr:
+  default_language: "ch"
+  supported_languages:
+    - "ch"    # Chinese
+    - "en"    # English
+    - "fr"    # French
+    - "de"    # German
+    - "ko"    # Korean
+    - "ja"    # Japanese
+    - "it"    # Italian
+    - "es"    # Spanish
+    - "pt"    # Portuguese
+    - "ru"    # Russian
+    - "ar"    # Arabic
+  
+  # Model configurations
+  models:
+    text_detection:
+      default: "PP-OCRv5_det"
+      mobile: "PP-OCRv5_mobile_det"
+      server: "PP-OCRv5_server_det"
+    
+    text_recognition:
+      default: "PP-OCRv5_rec"
+      mobile: "PP-OCRv5_mobile_rec"
+      server: "PP-OCRv5_server_rec"
+    
+    text_classifier:
+      default: "PP-LCNet_x1_0_textline_ori"
+    
+    document_orientation:
+      default: "PP-LCNet_x1_0_doc_ori"
+
+# PP-StructureV3 settings
+structure:
+  use_seal_recognition: true
+  use_table_recognition: true
+  use_formula_recognition: true
+  use_chart_recognition: false
+  use_region_detection: true
+  output_formats:
+    - "json"
+    - "markdown"
+
+# PP-ChatOCRv4 settings
+chat_ocr:
+  default_model: "ernie-3.5-8k"
+  base_url: "https://qianfan.baidubce.com/v2"
+  api_type: "openai"
+  timeout: 60
+  max_tokens: 4096
+
+# MCP Server settings
+mcp:
+  enabled: true
+  service_url: "http://localhost:8000"
+  tools:
+    - "ocr_text_detection_recognition"
+    - "structure_analysis"
+    - "text_detection_only"
+    - "text_recognition_only"
+    - "chat_ocr"
+
+# Storage settings
+storage:
+  output_directory: "./output"
+  models_directory: "./models"
+  temp_directory: "./temp"
+  cleanup_temp_files: true
+  max_file_size: 10485760  # 10MB
+
+# Performance settings
+performance:
+  enable_gpu: false
+  enable_mkldnn: true
+  cpu_threads: 4
+  batch_size: 1
+  memory_optimization: true
+
+# Security settings
+security:
+  allowed_origins: ["*"]
+  allowed_methods: ["GET", "POST"]
+  allowed_headers: ["*"]
+  rate_limiting:
+    enabled: false
+    requests_per_minute: 60
+
+# Monitoring settings
+monitoring:
+  health_check_interval: 30
+  metrics_enabled: true
+  log_requests: true
+  log_responses: false
